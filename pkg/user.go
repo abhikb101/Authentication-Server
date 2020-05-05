@@ -18,3 +18,10 @@ type Hash interface {
 	Generate(s string) (string, error)
 	Compare(hash string, p string) error
 }
+
+type TokenService interface {
+	GenerateAccessToken(u *User) (string, error)
+	GenerateRefreshToken(u *User) (string, error)
+	GenerateAuthorizationCode(u *User) (string, error)
+	VerifyToken(t string) error
+}
