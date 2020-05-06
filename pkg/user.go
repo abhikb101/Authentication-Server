@@ -1,5 +1,7 @@
 package root
 
+import "github.com/gorilla/mux"
+
 type User struct {
 	ID       string `json:"id"`
 	Username string `json:"username"`
@@ -24,4 +26,9 @@ type TokenService interface {
 	GenerateRefreshToken(u *User) (string, error)
 	GenerateAuthorizationCode(u *User) (string, error)
 	VerifyToken(t string) error
+}
+
+type server interface {
+	Start()
+	NewRoute(path string) *mux.Router
 }
