@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"time"
@@ -36,6 +37,33 @@ func (j *TokenService) GenerateAccessToken(u *root.User) (string, error) {
 	return tokenString, err
 }
 
+func (j *TokenService) RefreshTokenExchange(t string) (string, error) {
+	var user root.User
+	rawkey, err := ioutil.ReadFile("C:/Users/HP-PC/go/src/user_auth/keys/public.key")
+	if err != nil {
+		return "", err
+	}
+	block, _ := pem.Decode(rawkey)
+	key, err := x509.ParsePKIXPublicKey(block.Bytes)
+	tok, err := jwt.Parse(t, func(token *jwt.Token) (interface{}, error) {
+		return key, nil
+	})
+	if err != nil {
+		return "", err
+	}
+	claims := tok.Claims.(jwt.MapClaims)
+	if claims["type"].(string) != "refresh_token" {
+		return "", errors.New("Invaid token type:" + claims["type"].(string))
+	}
+	user.Email = claims["email"].(string)
+	user.Username = claims["username"].(string)
+	tokenString, err := j.GenerateAccessToken(&user)
+	if err != nil {
+		return "", err
+	}
+	return tokenString, nil
+}
+
 func (j *TokenService) GenerateRefreshToken(u *root.User) (string, error) {
 	rawkey, err := ioutil.ReadFile("C:/Users/HP-PC/go/src/user_auth/keys/private.key")
 	if err != nil {
@@ -49,7 +77,6 @@ func (j *TokenService) GenerateRefreshToken(u *root.User) (string, error) {
 	claims["authorized"] = true
 	claims["username"] = u.Username
 	claims["email"] = u.Email
-	claims["userid"] = u.ID
 	claims["exp"] = time.Now().Add(time.Hour * 24 * 5).Unix()
 	tokenString, err := token.SignedString(key)
 	if err != nil {
@@ -75,16 +102,13 @@ func (j *TokenService) VerifyToken(t string) error {
 		return err
 	}
 	_, err = jwt.Parse(t, func(token *jwt.Token) (interface{}, error) {
-		// Don't forget to validate the alg is what you expect:
 		if token.Header["alg"] == "RS256" {
 			return key, nil
 		}
 		return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
-		// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
 	})
 	if err != nil {
 		return err
 	}
-
 	return nil
 }

@@ -14,9 +14,10 @@ type Server struct {
 	router *mux.Router
 }
 
-func NewServer(u root.UserService) *Server {
+func NewServer(u root.UserService, t root.TokenService) *Server {
 	s := Server{router: mux.NewRouter()}
-	NewRegisterRouter(u, s.NewRoute("/newuser"))
+	NewRegisterRouter(u, t, s.router)
+	NewLoginRouter(u, t, s.router)
 	return &s
 }
 

@@ -5,6 +5,7 @@ import (
 	"user_auth/pkg/crypto"
 	"user_auth/pkg/mongo_wrap"
 	"user_auth/pkg/server"
+	"user_auth/pkg/token"
 )
 
 func main() {
@@ -16,7 +17,7 @@ func main() {
 	}
 	hash := crypto.Hash{}
 	userservice := mongo_wrap.NewUserService(client, "UserDatabse", "Users", &hash)
-	//token := token.TokenService{}
-	serv := server.NewServer(userservice)
+	token := token.TokenService{}
+	serv := server.NewServer(userservice, &token)
 	serv.Start()
 }

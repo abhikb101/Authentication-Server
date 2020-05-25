@@ -25,6 +25,7 @@ type TokenService interface {
 	GenerateAccessToken(u *User) (string, error)
 	GenerateRefreshToken(u *User) (string, error)
 	GenerateAuthorizationCode(u *User) (string, error)
+	RefreshTokenExchange(t string) (string, error)
 	VerifyToken(t string) error
 }
 

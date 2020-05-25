@@ -26,6 +26,7 @@ func GenerateAccessToken_should_generate_jwt(t *testing.T) {
 	}
 	// Newly generated token
 	token, err := j.GenerateAccessToken(&user)
+	tk, err := j.GenerateRefreshToken(&user)
 	// Expired token with correct data and encoding
 	token1 := "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdXRob3JpemVkIjp0cnVlLCJlbWFpbCI6ImludGVncmF0aW9uX3Rlc3RfZW1haWwiLCJleHAiOjE1ODg0MzUzNzUsInR5cGUiOiJhY2Nlc3NfdG9rZW4iLCJ1c2VybmFtZSI6ImludGVncmF0aW9uX3Rlc3RzZXIifQ.hYeFhnXxm2SAf3g52erGl3Shc5xrXFXNcpJNjOeSv5OKmfM2EtDcxuFe43TnVIPifHdXmYNNGeFw9O_oobUUh82LNZWAvfMZFLuEKuYZa2we_tIlHpsenBxfXFKaBxf1py6dMv2GtjIHMZSmLitTgwh_h7hRBiTUEKv4E7ErlfquBmFtvVwpRFS7ljll2k6Amiqd7s6iNcnbmXQmScb-uHhExacP4IldVpCiDYh33RBaWizfbTiJcq_kc0wr-_g6Uoa7n5zarEkuQe3fzzOotA1awl08xp-MNfwvZd4TDIR5Sq88XBSKp7guhOSG4NnnUbXwDJYyCmhAL2NAi2ZoYQ"
 	// Token modified with alg=none
@@ -51,6 +52,21 @@ func GenerateAccessToken_should_generate_jwt(t *testing.T) {
 	err = j.VerifyToken(token2)
 	t.Log(err)
 	err = j.VerifyToken(token3)
+	if err != nil {
+		t.Log(err)
+	}
+	err = j.VerifyToken(tk)
+	if err != nil {
+		t.Log(err)
+		t.Log("k")
+	}
+	at, err := j.RefreshTokenExchange(tk)
+	t.Log(tk)
+	if err != nil {
+		t.Log(err)
+	}
+	t.Log(at)
+	err = j.VerifyToken(at)
 	if err != nil {
 		t.Log(err)
 	}
